@@ -1,0 +1,11 @@
+PyQt6
+moviepy
+Pillow
+numpy
+requests
+openai
+funasr
+modelscope
+torch
+torchaudio
+mutagen
