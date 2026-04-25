@@ -48,24 +48,23 @@ conda create -n VidMarmot python=3.12 -y
 conda activate VidMarmot
 
 # 安装依赖
-pip install PyQt6 moviepy Pillow requests openai
-pip install funasr modelscope torch torchaudio
+pip install -r requirements.txt
 
 # 下载 ASR 模型（约 1.2GB）
 python qwen_download.py
 ```
 
-### 配置 API Key
+### 配置
 
 编辑 `config.py`，在对应模型的 `api_key` 字段填入你的 Key。只需填你用到的服务即可。
 
-| 服务 | 用途 | Key 对应 | 免费额度 |
-|------|------|----------|----------|
-| ModelScope | LLM + 文生图 | `MODELSCOPE_API_KEY` | 有 |
-| 硅基流动 | LLM + 文生图 | `SILICONFLOW_API_KEY` | 有 |
-| 阿里云百炼 | LLM (Qwen3-235B) | `DASHSCOPE_API_KEY` | 有 |
-| DeepSeek | LLM (V3/R1) | `DEEPSEEK_API_KEY` | 有 |
-| OpenAI 兼容 | 自定义 Router | `OPENAI_API_KEY` | - |
+| 服务 | 用途 | 免费额度 |
+|------|------|----------|
+| ModelScope | LLM (Qwen3.5-35B) + 文生图 | 有 |
+| 硅基流动 | LLM (GLM-4/Qwen3-32B) + 文生图 | 有 |
+| 阿里云百炼 | LLM (Qwen3-235B) | 有 |
+| DeepSeek | LLM (V3/R1) | 有 |
+| OpenAI 兼容 | 自定义 Router | - |
 
 ### 运行
 
@@ -102,24 +101,29 @@ workspace/my_lesson/
 ├── asr.py              # ASR 强制对齐
 ├── make_video.py       # 视频合成 + 字幕渲染
 ├── text_ai.py          # LLM API 客户端
-├── config.py           # 配置管理（路径、API、模型）
+├── config.py           # 全部配置（API Key、模型路径、参数）
 ├── qwen_download.py    # ASR 模型下载脚本
+├── requirements.txt    # Python 依赖
 ├── run.bat             # Windows 启动脚本
 └── .gitignore
 ```
 
 ## 依赖
 
+见 `requirements.txt`。
+
 | 包 | 用途 |
 |----|------|
 | PyQt6 | GUI 框架 |
 | moviepy | 视频合成 |
 | Pillow | 图片处理 / 字幕渲染 |
+| numpy | 数值计算 |
 | requests | HTTP API 调用 |
 | openai | 兼容 OpenAI 格式的 LLM 客户端 |
 | funasr | ASR 强制对齐 |
 | modelscope | 模型加载 |
 | torch / torchaudio | GPU 推理后端 |
+| mutagen | 音频时长获取（可选 fallback） |
 
 ## Roadmap
 
