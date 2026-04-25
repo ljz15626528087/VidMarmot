@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-gui.py - 视频制作流水线 GUI（release1）
+gui.py - VidMarmot GUI
 唯一入口，PyQt6 暗色主题
 
 流程：选工作区 → 划分场景 → 逐张生成+审查 → ASR → 合成视频
@@ -40,7 +40,8 @@ from PyQt6.QtCore import Qt, QThread, pyqtSignal, QMutex, QWaitCondition, QTimer
 from PyQt6.QtGui import QPixmap, QImage, QFont, QColor, QIcon
 
 
-from config import IMAGE_MODELS, DEFAULT_IMAGE_MODEL, DEFAULT_FPS, DEFAULT_VIDEO_SIZE, LLM_PROVIDERS, DEFAULT_LLM
+from config import (DEFAULT_FPS, DEFAULT_VIDEO_SIZE,
+                    LLM_PROVIDERS, IMAGE_MODELS, DEFAULT_IMAGE_MODEL)
 
 
 # ============================================================
@@ -635,7 +636,7 @@ class GenerationWorker(QThread):
 class VideoPipelineGUI(QMainWindow):
     def __init__(self):
         super().__init__()
-        self.setWindowTitle("视频制作流水线 - Release 1")
+        self.setWindowTitle("VidMarmot")
         self.setGeometry(80, 80, 1280, 820)
 
         # 状态
@@ -670,7 +671,7 @@ class VideoPipelineGUI(QMainWindow):
         main_layout.setSpacing(8)
 
         # --- 标题 ---
-        title = QLabel("视频制作流水线")
+        title = QLabel("VidMarmot")
         title.setObjectName("titleLabel")
         title.setAlignment(Qt.AlignmentFlag.AlignCenter)
         main_layout.addWidget(title)
@@ -690,22 +691,21 @@ class VideoPipelineGUI(QMainWindow):
 
         top_bar.addSpacing(20)
 
-        # LLM 模型选择（场景划分用）
+        # LLM model selector — show all providers, default to first
         top_bar.addWidget(QLabel("语言模型:"))
         self.llm_combo = QComboBox()
         self.llm_combo.addItems(LLM_PROVIDERS.keys())
-        idx = list(LLM_PROVIDERS.keys()).index(DEFAULT_LLM)
-        self.llm_combo.setCurrentIndex(idx)
         top_bar.addWidget(self.llm_combo)
 
         top_bar.addSpacing(20)
 
-        # 文生图模型选择
+        # Image model selector — show all models, default to first
         top_bar.addWidget(QLabel("文生图模型:"))
         self.model_combo = QComboBox()
         self.model_combo.addItems(IMAGE_MODELS.keys())
-        idx = list(IMAGE_MODELS.keys()).index(DEFAULT_IMAGE_MODEL)
-        self.model_combo.setCurrentIndex(idx)
+        default_img = DEFAULT_IMAGE_MODEL
+        if default_img and default_img in IMAGE_MODELS:
+            self.model_combo.setCurrentText(default_img)
         top_bar.addWidget(self.model_combo)
 
         top_bar.addSpacing(20)
@@ -884,8 +884,8 @@ class VideoPipelineGUI(QMainWindow):
 
         main_layout.addWidget(splitter, stretch=1)
 
-        # 初始日志
-        self.log("视频制作流水线 v1.0 已启动")
+        # Startup log
+        self.log("VidMarmot 已启动")
         self.log("请先选择一个工作区文件夹（包含 article.txt）")
 
     # ============================================================

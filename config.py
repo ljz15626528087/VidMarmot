@@ -1,81 +1,96 @@
 """
-release1 配置文件
-集中管理所有模型路径、API Key、默认参数
+config.py - All configuration for VidMarmot.
+
+API keys, model paths, default parameters — everything lives here.
+Edit this file directly to configure your setup.
 """
 
 import os
 
-# ========== 基础路径 ==========
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-VIDEO_PROJECT_DIR = os.path.dirname(BASE_DIR)  # 上级 video/ 目录
 
-# ========== ASR 模型（绝对路径指向 video/models/）==========
-ASR_MODEL_DIR = os.path.join(
-    r'C:\pythonproject\video', 'models', 'qwen', 'Qwen3-ForcedAligner-0.6B'
-).replace('\\', '/')
 
-# ========== LLM 提供商（划分场景/角色提取用）==========
+# ========== ASR Model ==========
+# Default: project_dir/models/qwen/Qwen3-ForcedAligner-0.6B
+# Override via env var VIDMARMOT_ASR_MODEL_DIR
+ASR_MODEL_DIR = os.path.join(BASE_DIR, "models", "qwen", "Qwen3-ForcedAligner-0.6B").replace("\\", "/")
+
+
+# ========== LLM Providers (scene planning / text generation) ==========
+# Fill in your API keys below. Only providers with keys will be usable.
 LLM_PROVIDERS = {
-    "Qwen3.5-35B (ModelScope 免费)": {
-        "api_key": "ms-38de567b-cf88-4523-bac2-ff63d8f1e0f6",
+    "Qwen3.5-35B (ModelScope)": {
+        "api_key": "",  # ← put your ModelScope API key here
         "api_base": "https://api-inference.modelscope.cn/v1/",
         "model": "Qwen/Qwen3.5-35B-A3B",
     },
-    "GLM-4-9B (硅基流动 免费)": {
-        "api_key": "sk-mjqgwknbttvqnrjjfnxemtjgdivogjaqsftbvoifwjvruwsq",
+    "GLM-4-9B (SiliconFlow)": {
+        "api_key": "",  # ← put your SiliconFlow API key here
         "api_base": "https://api.siliconflow.cn/v1/",
         "model": "THUDM/glm-4-9b-chat",
     },
-    "Qwen3-32B (硅基流动 付费)": {
-        "api_key": "sk-mjqgwknbttvqnrjjfnxemtjgdivogjaqsftbvoifwjvruwsq",
+    "Qwen3-32B (SiliconFlow)": {
+        "api_key": "",  # ← put your SiliconFlow API key here
         "api_base": "https://api.siliconflow.cn/v1/",
         "model": "Qwen/Qwen3-32B",
     },
-    "GLM-5 (ModelScope 免费)": {
-        "api_key": "ms-38de567b-cf88-4523-bac2-ff63d8f1e0f6",
+    "GLM-5 (ModelScope)": {
+        "api_key": "",  # ← put your ModelScope API key here
         "api_base": "https://api-inference.modelscope.cn/v1/",
         "model": "ZhipuAI/GLM-5",
     },
+    "Qwen3-235B-A22B (Aliyun)": {
+        "api_key": "",  # ← put your Aliyun DashScope API key here
+        "api_base": "https://dashscope.aliyuncs.com/compatible-mode/v1/",
+        "model": "qwen3-235b-a22b",
+    },
+    "DeepSeek-V3": {
+        "api_key": "",  # ← put your DeepSeek API key here
+        "api_base": "https://api.deepseek.com/v1/",
+        "model": "deepseek-chat",
+    },
+    "DeepSeek-R1": {
+        "api_key": "",  # ← put your DeepSeek API key here
+        "api_base": "https://api.deepseek.com/v1/",
+        "model": "deepseek-reasoner",
+    },
+    "OpenAI (Custom Router)": {
+        "api_key": "",  # ← put your OpenAI-compatible API key here
+        "api_base": "https://api.openai.com/v1/",  # change if using a custom router
+        "model": "gpt-4o",
+    },
 }
 
-# 默认 LLM（兼容旧代码）
-DEFAULT_LLM = "Qwen3.5-35B (ModelScope 免费)"
-LLM_API_KEY = LLM_PROVIDERS[DEFAULT_LLM]["api_key"]
-LLM_API_BASE = LLM_PROVIDERS[DEFAULT_LLM]["api_base"]
-LLM_MODEL = LLM_PROVIDERS[DEFAULT_LLM]["model"]
 
-# ========== SiliconFlow API（Kolors 文生图）==========
-SILICONFLOW_API_KEY = "sk-mjqgwknbttvqnrjjfnxemtjgdivogjaqsftbvoifwjvruwsq"
-SILICONFLOW_API_BASE = "https://api.siliconflow.cn/v1/images/generations"
-
-# ========== ModelScope API（Qwen 文生图）==========
-MODELSCOPE_API_KEY = "ms-38de567b-cf88-4523-bac2-ff63d8f1e0f6"
-MODELSCOPE_API_BASE = "https://api-inference.modelscope.cn/v1/images/generations"
-MODELSCOPE_POLL_INTERVAL = 3  # 轮询间隔（秒）
-MODELSCOPE_MAX_WAIT = 180     # 最大等待时间（秒）
-
-# ========== 文生图模型 ==========
+# ========== Text-to-Image Models ==========
+# Fill in your API keys below.
 IMAGE_MODELS = {
-    "Kolors（便宜快速）": {
+    "Kolors (SiliconFlow)": {
         "provider": "siliconflow",
+        "api_key": "",  # ← put your SiliconFlow API key here
+        "api_base": "https://api.siliconflow.cn/v1/images/generations",
         "model": "Kwai-Kolors/Kolors",
         "default_size": "1280x720",
         "guidance_scale": 7.5,
     },
-    "Qwen-Image（高质量）": {
+    "Qwen-Image (ModelScope)": {
         "provider": "modelscope",
+        "api_key": "",  # ← put your ModelScope API key here
+        "api_base": "https://api-inference.modelscope.cn/v1/images/generations",
+        "poll_interval": 3,
+        "max_wait": 180,
         "model": "Qwen/Qwen-Image-2512",
         "default_size": "1280x720",
         "guidance_scale": 7.5,
     },
 }
 
-# 默认文生图模型
-DEFAULT_IMAGE_MODEL = "Kolors（便宜快速）"
+DEFAULT_IMAGE_MODEL = "Kolors (SiliconFlow)"
 
-# ========== 默认参数 ==========
+
+# ========== Defaults ==========
 DEFAULT_FPS = 24
 DEFAULT_VIDEO_SIZE = "1280x720"
 
-# ========== 通用 negative prompt ==========
+# Negative prompt for image generation
 NEGATIVE_PROMPT = "blurry, low quality, deformed, text, letters, words, subtitle, logo, watermark, caption, label, number"

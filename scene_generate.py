@@ -84,7 +84,7 @@ def generate_single_scene(
         return scene
 
 
-def main(workspace: str = None, model_name: str = "Kolors（便宜快速）"):
+def main(workspace: str = None, model_name: str = "Kolors (SiliconFlow)"):
     """主流程：生成所有 pending 场景"""
     global WORKSPACE, PLAN_PATH, SCENE_IMG_DIR
 

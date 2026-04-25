@@ -12,13 +12,15 @@ models/
 # Workspace data (user-generated)
 workspace/
 
+# Virtual env
+venv/
+.venv/
+
 # Backup
 _backup/
 
-# Environment
-.env
-venv/
-.venv/
+# Backup
+_backup/
 
 # IDE
 .vscode/

@@ -1,132 +1,132 @@
-# Videoer
+# VidMarmot
 
-**AI-powered video generation pipeline** — 从文章到视频的一站式工具。
+> **VidMarmot** — 为英语课本音频配画的 AI 工具。
 
-给定一篇英文文章（文本）和对应的朗读音频，自动完成：
+给一篇课文文本 + 对应的朗读音频，VidMarmot 会自动拆分场景、生成配图、对齐语音时间轴，最终合成一个带字幕的视频。
+
+## 为什么做这个？
+
+老师总让我帮忙做课文视频。一次两次还好，做多了真的烦。
+
+所以我就写了这个工具——把整个流程自动化了：放进去文本和音频，点几下按钮，视频就出来了。
+
+## 主要用途
+
+- **英语课本课文** — 给每篇课文的朗读音频配上场景画面
+- **故事类文章** — 自动拆分场景，逐张生成配图
+- **教学演示** — 生成带字幕的场景切换视频
 
 ```
-文章文本 + 朗读音频 → AI 场景划分 → 逐场景生成配图 → ASR 时间对齐 → 合成视频（含字幕）
+课文文本 + 朗读音频 → AI 拆分场景 → 逐场景生成配图 → 语音对齐时间轴 → 合成视频（含字幕）
 ```
 
-## Preview
+## 功能
+
+- **AI 场景划分** — 支持 Qwen / GLM / DeepSeek / 阿里云百炼 / OpenAI 兼容接口
+- **AI 文生图** — 支持 Kolors / Qwen-Image 模型，逐张生成场景配图
+- **逐张审查** — 每张图生成后可以预览、确认、重新生成或跳过
+- **语音对齐** — 基于 Qwen3-ForcedAligner 的 ASR 强制对齐
+- **视频合成** — MoviePy 合成最终视频，自动添加字幕
+
+## 预览
 
 ![Pipeline Overview](docs/pipeline.png)
 
-## Features
+## 快速开始
 
-- **AI Scene Planning** — 基于 LLM（Qwen / GLM）智能划分场景，提取角色、画面描述
-- **AI Image Generation** — 支持 Kolors / Qwen-Image 文生图模型，逐张生成场景配图
-- **Interactive Review** — 逐张审查、确认/重新生成场景图
-- **Forced Alignment** — 基于 Qwen3-ForcedAligner 的语音-文本时间对齐
-- **Video Synthesis** — MoviePy 合成最终视频，自动添加字幕
-
-## Architecture
-
-```
-release1/
-├── gui.py            # PyQt6 GUI (main entry)
-├── scene_plan.py     # LLM scene planning + prompt engineering
-├── image_gen.py      # Text-to-image API calls
-├── asr.py            # ASR forced alignment
-├── make_video.py     # Video synthesis + subtitle rendering
-├── text_ai.py        # Shared LLM API client
-├── config.py         # Model paths, API keys, defaults
-├── run.bat           # Windows launcher
-└── qwen_download.py  # One-time model download script
-```
-
-## Workflow
-
-```
-1. Select workspace (folder with article.txt + voice.mp3)
-2. AI Scene Planning   → scene_plan.json
-3. Image Generation    → scene_01.png, scene_02.png, ...
-4. ASR Alignment       → result.json + timestamps into scene_plan
-5. Video Synthesis     → output_video.mp4
-```
-
-## Quick Start
-
-### Prerequisites
+### 环境要求
 
 - Python 3.12+
-- Conda (recommended)
-- NVIDIA GPU (for local ASR model)
+- Conda
+- NVIDIA GPU（本地 ASR 模型需要）
 
-### Setup
+### 安装
 
 ```bash
-# Create conda environment
-conda create -n Videoer python=3.12 -y
-conda activate Videoer
+# 创建环境
+conda create -n VidMarmot python=3.12 -y
+conda activate VidMarmot
 
-# Install dependencies
+# 安装依赖
 pip install PyQt6 moviepy Pillow requests openai
 pip install funasr modelscope torch torchaudio
 
-# Download ASR model
+# 下载 ASR 模型（约 1.2GB）
 python qwen_download.py
 ```
 
-### Configuration
+### 配置 API Key
 
-Edit `config.py` to set your API keys:
+编辑 `config.py`，在对应模型的 `api_key` 字段填入你的 Key。只需填你用到的服务即可。
 
-```python
-# LLM providers (scene planning)
-LLM_PROVIDERS = {
-    "Qwen3.5-35B (ModelScope)": {
-        "api_key": "YOUR_KEY",
-        ...
-    },
-    ...
-}
+| 服务 | 用途 | Key 对应 | 免费额度 |
+|------|------|----------|----------|
+| ModelScope | LLM + 文生图 | `MODELSCOPE_API_KEY` | 有 |
+| 硅基流动 | LLM + 文生图 | `SILICONFLOW_API_KEY` | 有 |
+| 阿里云百炼 | LLM (Qwen3-235B) | `DASHSCOPE_API_KEY` | 有 |
+| DeepSeek | LLM (V3/R1) | `DEEPSEEK_API_KEY` | 有 |
+| OpenAI 兼容 | 自定义 Router | `OPENAI_API_KEY` | - |
 
-# Image generation
-SILICONFLOW_API_KEY = "YOUR_KEY"
-MODELSCOPE_API_KEY = "YOUR_KEY"
-```
-
-> **Tip**: ModelScope and SiliconFlow both offer free-tier API keys.
-
-### Run
+### 运行
 
 ```bash
-# GUI mode (recommended)
 python gui.py
 
-# Or on Windows
+# 或 Windows 双击
 run.bat
 ```
 
-### Workspace Structure
+### 工作区结构
 
-Each video project lives in a workspace folder:
+每个视频项目是一个文件夹：
 
 ```
-workspace/my_project/
-├── article.txt          # Source article text
-├── voice.mp3            # Narration audio
-├── scene_plan.json      # Generated scene plan (auto)
-├── result.json          # ASR alignment result (auto)
-├── scene_01.png         # Generated images (auto)
-├── scene_02.png
-├── ...
-└── output_video.mp4     # Final output (auto)
+workspace/my_lesson/
+├── article.txt          # 课文文本
+├── voice.mp3            # 朗读音频
+├── scene_plan.json      # 场景计划（自动生成）
+├── result.json          # ASR 对齐结果（自动生成）
+├── scene/               # 生成的场景图
+│   ├── scene_001.png
+│   ├── scene_002.png
+│   └── ...
+└── output_video.mp4     # 最终视频（自动生成）
 ```
 
-## Dependencies
+## 项目结构
 
-| Package | Purpose |
-|---------|---------|
-| PyQt6 | GUI framework |
-| moviepy | Video composition |
-| Pillow | Image processing / subtitle rendering |
-| requests | HTTP API calls |
-| openai | Compatible LLM client (OpenAI API format) |
-| funasr | ASR forced alignment |
-| modelscope | Model loading |
-| torch / torchaudio | GPU inference backend |
+```
+├── gui.py              # PyQt6 GUI（主入口）
+├── scene_plan.py       # AI 场景划分 + Prompt 工程
+├── image_gen.py        # 文生图 API 调用
+├── asr.py              # ASR 强制对齐
+├── make_video.py       # 视频合成 + 字幕渲染
+├── text_ai.py          # LLM API 客户端
+├── config.py           # 配置管理（路径、API、模型）
+├── qwen_download.py    # ASR 模型下载脚本
+├── run.bat             # Windows 启动脚本
+└── .gitignore
+```
+
+## 依赖
+
+| 包 | 用途 |
+|----|------|
+| PyQt6 | GUI 框架 |
+| moviepy | 视频合成 |
+| Pillow | 图片处理 / 字幕渲染 |
+| requests | HTTP API 调用 |
+| openai | 兼容 OpenAI 格式的 LLM 客户端 |
+| funasr | ASR 强制对齐 |
+| modelscope | 模型加载 |
+| torch / torchaudio | GPU 推理后端 |
+
+## Roadmap
+
+- [ ] **图生视频** — 用生成的场景图做图生视频，让每张静态图变成动态片段，最终拼接成真正的动态视频
+- [ ] 更多文生图模型支持
+- [ ] 批量处理多个课文
+- [ ] 打包为可执行文件（pyinstaller）
 
 ## License
 
